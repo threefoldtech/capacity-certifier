@@ -89,6 +89,7 @@ char *capacity_dumps(capacity_t *capacity) {
     json_object_set_new(root, "seed", json_string(convert));
 
     json_t *results = json_object();
+
     for(size_t i = 0; i < capacity->length; i++) {
         sprintf(key, "%lu", capacity->offsets[i]);
         sprintf(convert, "%016lx", capacity->results[i]);
@@ -166,8 +167,9 @@ int main(int argc, char *argv[]) {
     printf("[+] generating crc length: %lu\n", values);
 
     // time statistics
-    struct timeval time_begin, time_end;
+    struct timeval time_begin, time_end, time_total_begin;
     gettimeofday(&time_begin, NULL);
+    gettimeofday(&time_total_begin, NULL);
 
     // randomize
     uint64_t time_seed = time64(&time_begin);
@@ -241,15 +243,20 @@ int main(int argc, char *argv[]) {
         capacity.results[offset] = seed;
     }
 
-    printf("\n[+] data generated\n");
+    // grand total speed summary
+    gettimeofday(&time_end, NULL);
+    double timed = time_spent(&time_end) - time_spent(&time_total_begin);
+    double cspeed = speed(capacity.size, timed);
+
+    printf("\r[+] data generated in %.1f seconds [%.2f MB/s]\n", timed, cspeed);
 
     char *json = capacity_dumps(&capacity);
 
-    puts(json);
+    // puts(json);
     printf("[+] capacity result length: %lu bytes\n", strlen(json));
 
     char keyname[128];
-    sprintf(keyname, "storage-%.0fGB-%016lx", GB(capacity.size), capacity.seed);
+    sprintf(keyname, "storage-%lu-%016lx", capacity.size, capacity.seed);
 
     printf("[+] saving capacity report: %s\n", keyname);
 
