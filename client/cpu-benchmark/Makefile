@@ -10,6 +10,10 @@ all: $(EXEC)
 release: CFLAGS += -DRELEASE -O2
 release: clean $(EXEC)
 
+static: CFLAGS += -DRELEASE -O2
+static: LDFLAGS += -static
+static: clean $(EXEC)
+
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
