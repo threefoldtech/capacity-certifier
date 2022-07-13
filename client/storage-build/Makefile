@@ -7,7 +7,7 @@ LDFLAGS +=
 
 all: $(EXEC)
 
-release: CFLAGS += -DRELEASE -O2
+release: CFLAGS += -DRELEASE -O2 -march=westmere
 release: clean $(EXEC)
 
 $(EXEC): $(OBJ)
