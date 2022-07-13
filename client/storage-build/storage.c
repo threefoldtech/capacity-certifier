@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
     printf("[+] generating crc length: %lu\n", values);
 
     // time statistics
+    struct timeval time_total_begin, time_total_end;
     struct timeval time_begin, time_end;
     gettimeofday(&time_begin, NULL);
 
@@ -127,6 +128,8 @@ int main(int argc, char *argv[]) {
         printf("buffer not possible\n");
         return 1;
     }
+
+    gettimeofday(&time_total_begin, NULL);
 
     for(size_t offset = 0; offset < values; offset++) {
         memcpy(buffer + bufoff, &seed, sizeof(seed));
@@ -152,7 +155,12 @@ int main(int argc, char *argv[]) {
         seed = crc64((uint8_t *) &seed, sizeof(seed));
     }
 
-    printf("\n[+] device ready\n");
+    gettimeofday(&time_total_end, NULL);
+
+    double timed = time_spent(&time_total_end) - time_spent(&time_total_begin);
+    double cspeed = speed(fullsize, timed);
+
+    printf("\n[+] device ready, write speed: %.0f MB/s\n", cspeed);
 
     return 0;
 }
