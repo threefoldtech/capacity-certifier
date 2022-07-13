@@ -111,14 +111,15 @@ int main(int argc, char *argv[]) {
     double timed = time_spent(&cpubench.time_end) - time_spent(&cpubench.time_begin);
     double cspeed = speed(cpubench.length, timed);
 
-    printf("\r[+] single thread score: %.0f\n", cspeed);
+    printf("[+] seed 0x%lx: 0x%lx\n", cpubench.seed, cpubench.final);
+    printf("[+] single thread score: %.0f\n", cspeed);
     }
 
     // multi-thread
-    printf("[+] testing multi-threads\n");
-
     long cpucount = sysconf(_SC_NPROCESSORS_ONLN);
     double totalspeed = 0;
+
+    printf("[+] testing multi-threads (%ld threads)\n", cpucount);
 
     #pragma omp parallel for num_threads(cpucount)
     for(long a = 0; a < cpucount; a++) {
@@ -127,6 +128,8 @@ int main(int argc, char *argv[]) {
         };
 
         benchmark(&cpubench);
+
+        printf("[+] seed 0x%lx: 0x%lx\n", cpubench.seed, cpubench.final);
 
         double timed = time_spent(&cpubench.time_end) - time_spent(&cpubench.time_begin);
         double cspeed = speed(cpubench.length, timed);
