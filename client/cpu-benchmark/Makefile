@@ -2,7 +2,10 @@ EXEC = grid-cpubench
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
-CFLAGS += -g -std=gnu99 -O0 -W -Wall -Wextra -Wno-implicit-fallthrough -march=native -fopenmp
+# Using -march=westmere disable AVX
+# Execution time is slower using AVX than SSE instruction set
+
+CFLAGS += -g -std=gnu99 -O0 -W -Wall -Wextra -Wno-implicit-fallthrough -march=westmere -fopenmp
 LDFLAGS += -fopenmp
 
 all: $(EXEC)
