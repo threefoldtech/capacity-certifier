@@ -29,6 +29,36 @@ void diep(char *str) {
     exit(EXIT_FAILURE);
 }
 
+static char *cpu_modelname() {
+    char *modelname = NULL;
+    char buffer[1024], *match, *endline;
+    ssize_t len;
+    int fd;
+
+    if((fd = open("/proc/cpuinfo", O_RDONLY)) < 0)
+        return strdup("unknown");
+
+    while((len = read(fd, buffer, sizeof(buffer))) > 0) {
+        buffer[len] = '\0';
+
+        if(!(match = strstr(buffer, "model name")))
+            continue;
+
+        if(!(match = strchr(match, ':')))
+            continue;
+
+        if(!(endline = strchr(match, '\n')))
+            continue;
+
+        modelname = strndup(match + 2, endline - match - 2);
+        break;
+    }
+
+    close(fd);
+
+    return modelname;
+}
+
 static double time_spent(struct timeval *timer) {
     return (((size_t) timer->tv_sec * 1000000) + timer->tv_usec) / 1000000.0;
 }
@@ -98,6 +128,10 @@ int main(int argc, char *argv[]) {
     uint64_t seed = strtoull(seeds, NULL, 16);
 
     printf("[+] parsed seed: 0x%016lx\n", seed);
+
+    char *cpumodel = cpu_modelname();
+    printf("[+] cpu model name: " COLOR_GREEN "%s" COLOR_RESET "\n", cpumodel);
+    free(cpumodel);
 
     benchmark_t cpubench = {
         .seed = seed,
